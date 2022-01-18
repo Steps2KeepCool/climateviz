@@ -1,0 +1,85 @@
+<html>
+    <head>
+        <title>Visualization of data from "A comprehensive and synthetic dataset for global, regional, and national greenhouse gas emissions by sector 1970-2018 with an extension to 2019"</title>
+    </head>
+    <body>
+        <!-- Script and style links here instead of head for ease of use with Jekyll -->
+        <!-- external libs from cdnjs -->
+        <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+        <!-- PivotTable.js libs -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.css" integrity="sha512-BDStKWno6Ga+5cOFT9BUnl9erQFzfj+Qmr5MDnuGqTQ/QYDO1LPdonnF6V6lBO6JI13wg29/XmPsufxmCJ8TvQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/pivot.min.js" integrity="sha512-XgJh9jgd6gAHu9PcRBBAp0Hda8Tg87zi09Q2639t0tQpFFQhGpeCgaiEFji36Ozijjx9agZxB0w53edOFGCQ0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/pivottable/2.23.0/plotly_renderers.min.js" integrity="sha512-nGY6wbyP3gWxAjsZwsjWahe9nKLCTTyTLn1dpwuNHb9CKLjogHAMVIbbr4wNYL0dKOsWTCrlpx9RDY+bB1MFrQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <style>
+            body {font-family: Verdana;}
+        </style>
+
+        <!-- optional: mobile support with jqueryui-touch-punch -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+        <!-- PapaParse for parsing csv  -->
+		<script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+        <!-- End script and style links -->
+
+        <h1>Visualization of data from "A comprehensive and synthetic dataset for global, regional, and national greenhouse gas emissions by sector 1970-2018 with an extension to 2019"</h1>
+
+        <p>This is a visualization of data from this paper: <a href="https://essd.copernicus.org/articles/13/5213/2021/essd-13-5213-2021.html">A comprehensive and synthetic dataset for global, regional, and national greenhouse gas emissions by sector 1970-2018 with an extension to 2019</a></p>
+        <p><a href="https://essd.copernicus.org/articles/13/5213/2021/#section5">Data availability from paper</a> linking to <a href="https://doi.org/10.5281/zenodo.5566761">Zenodo https://doi.org/10.5281/zenodo.5566761</a> <br>
+           This visualization starts from the data file <a href="https://zenodo.org/record/5566761/files/essd_ghg_data_gwp100.xlsx?download=1">essd_ghg_data_gwp100.xlsx</a>
+           The data from the "data" sheet in this spreadsheet was converted to CSV in a format suitable for the pivot chart. <br>
+           (A script for this processing will be shared shortly.)
+        </p>
+        <p>The pivot chart shows the sum of the emissions as tCO2eq across the different categories at the left-hand side.<br>
+           Initially the breakdown for each gas summed across all countries is shown.<br>
+           Drag other fields from the left hand panel above or below the "gas" field to break down by other categories (e.g. country, sector, subsector).<br>
+           (You can also drag the "gas" field out to the left hand panel to look at total CO2eq values.)<br><br>
+           Click-and-drag on the graph to select an area to zoom in on.<br>
+           Other graph options are available in the top-right of the graph.<br><br>
+           Click on the dropdown on a field to filter to specific subsets.<br>
+           (You can also enable or disable particular lines on the graph by clicking on the graph legend items.)<br>
+           Click on chart type menu (which starts as "Line chart") for other chart options. E.g. "Stacked Bar Chart" can give an impression of percentages in a given year.<br>
+           Click on the aggregations menu (which starts as "Sum") to switch to other aggregations. E.g. "Sum as Fraction of Columns" may be interesting (also in combination with "Stacked Bar Chart").<br>
+           <br>
+        </p>
+
+        <script type="text/javascript">
+
+            var datafile = "data/out-ghg-data-gwp100-reshaped.csv";
+
+            $(function(){
+                var renderers = $.extend($.pivotUtilities.renderers,
+                    $.pivotUtilities.plotly_renderers);
+                var tpl = $.pivotUtilities.aggregatorTemplates;
+
+                Papa.parse(datafile, {
+                    download: true,
+                    skipEmptyLines: true,
+                    complete: function(parsed){
+                        $("#output").pivotUI(parsed.data, {
+                            renderers: renderers,
+                            rendererName: "Line Chart",
+                            rendererOptions: {
+                                plotlyConfig: {
+                                    displayModeBar: true
+                                }
+                            },
+                            rows: ["gas"], cols: ["year"],
+                            aggregatorName: "Sum",
+                            vals: ["emissions_tCO2eq"]
+                        });
+                    }
+                });
+
+            });
+
+        </script>
+
+        <div id="output" style="margin: 30px;">[ Data and chart loading... ]</div>
+
+        <p><br>(Pivot table and chart library: <a href="https://pivottable.js.org">PivotTable.js</a>)</p>
+
+    </body>
+</html>
